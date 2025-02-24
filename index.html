@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能习惯配方生成器</title>
+    <style>
+        body { max-width: 800px; margin: 20px auto; padding: 20px; font-family: 'Microsoft YaHei'; }
+        .card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        .custom-input { margin-top: 10px; width: 95%; padding: 8px; }
+        .flex-group { display: flex; gap: 10px; }
+        select { flex: 1; padding: 8px; }
+        #output { font-size: 1.2em; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>智能习惯配方生成器</h1>
+
+    <!-- 锚点行为 -->
+    <div class="card">
+        <h3>在......之后</h3>
+        <div class="flex-group">
+            <select id="anchorAction">
+                <!-- 🟢 扩展锚点：在此添加option -->
+                <option value="起床">起床</option>
+                <option value="刷牙">刷牙</option>
+                <option value="洗脸">洗脸</option>
+                <option value="上卫生间">上卫生间</option>
+                <option value="吃早餐">吃早餐</option>
+                <option value="通勤时">通勤时</option>
+                <option value="到办公室">到办公室</option>
+                <option value="打开电脑">打开电脑</option>
+                <option value="会议结束后">会议结束后</option>
+                <option value="午休前">午休前</option>
+                <option value="下班打卡">下班打卡</option>
+                <option value="上床">上床</option>
+            </select>
+            <input type="text" id="customAnchor" class="custom-input" placeholder="或输入自定义锚点">
+        </div>
+    </div>
+
+    <!-- 新习惯 -->
+    <div class="card">
+        <h3>我会做......</h3>
+        <div class="flex-group">
+            <select id="habitCategory" onchange="loadHabits()">
+                <!-- 🟢 扩展分类：在此添加option -->
+                <option value="health">健康</option>
+                <option value="efficiency">效率</option>
+                <option value="learning">学习</option>
+                <option value="mind">心态</option>
+                <option value="family">家庭</option>
+            </select>
+            <select id="newHabit"></select>
+            <input type="text" id="customHabit" class="custom-input" placeholder="或输入自定义习惯">
+        </div>
+    </div>
+
+    <button onclick="generateFormula()">生成习惯配方</button>
+
+    <div class="card" id="output">
+        <h3>你的专属习惯配方：</h3>
+        <p id="habitFormula"></p>
+    </div>
+
+    <script>
+        // 🟢 扩展数据：在此修改habitData结构
+        const habitData = {
+            health: [
+                "喝一杯温水", 
+                "做10个深蹲",
+                "测量体重",
+                "补充维生素"
+            ],
+            efficiency: [
+                "列出今日三件事",
+                "整理工作台",
+                "设置25分钟番茄钟",
+                "清理邮箱"
+            ],
+            learning: [
+                "读专业文章10分钟",
+                "背5个单词",
+                "写学习笔记",
+                "观看教学视频"
+            ],
+            mind: [
+                "冥想3分钟",
+                "记录感恩日记",
+                "深呼吸练习",
+                "正念观察"
+            ],
+            family: [
+                "给家人发问候",
+                "规划家庭活动",
+                "准备小礼物",
+                "视频通话"
+            ]
+        };
+
+        // 初始化加载习惯
+        function loadHabits() {
+            const category = document.getElementById("habitCategory").value;
+            const select = document.getElementById("newHabit");
+            select.innerHTML = "";
+            
+            habitData[category].forEach(habit => {
+                const option = new Option(habit, habit);
+                select.add(option);
+            });
+        }
+
+        function generateFormula() {
+            // 获取锚点（优先使用自定义）
+            const anchor = document.getElementById("customAnchor").value.trim() || 
+                         document.getElementById("anchorAction").value;
+            
+            // 获取习惯（优先使用自定义）
+            const habit = document.getElementById("customHabit").value.trim() || 
+                         document.getElementById("newHabit").value;
+
+            // 生成配方
+            const formula = `在【${anchor}】之后，我会【${habit}】`;
+            document.getElementById("habitFormula").textContent = formula;
+
+            // 保存记录
+            const history = JSON.parse(localStorage.getItem("habitHistory")) || [];
+            history.push({
+                timestamp: new Date().toISOString(),
+                formula: formula,
+                category: document.getElementById("habitCategory").value
+            });
+            localStorage.setItem("habitHistory", JSON.stringify(history));
+        }
+
+        // 初始化
+        loadHabits();
+    </script>
+</body>
+</html>

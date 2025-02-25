@@ -2,15 +2,23 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能习惯配方生成器</title>
     <style>
         body { max-width: 800px; margin: 20px auto; padding: 20px; font-family: 'Microsoft YaHei'; }
         .card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; }
-        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-        .custom-input { margin-top: 10px; width: 95%; padding: 8px; }
-        .flex-group { display: flex; gap: 10px; }
-        select { flex: 1; padding: 8px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        .custom-input { margin-top: 10px; width: 100%; padding: 12px; font-size: 16px; box-sizing: border-box; }
+        .flex-group { display: flex; flex-direction: column; gap: 10px; }
+        select { width: 100%; padding: 12px; font-size: 16px; box-sizing: border-box; }
         #output { font-size: 1.2em; margin-top: 20px; }
+        h1 { font-size: 24px; text-align: center; }
+        h3 { font-size: 18px; margin-bottom: 10px; }
+        @media (min-width: 600px) {
+            .flex-group { flex-direction: row; }
+            .flex-group select { flex: 1; }
+            .flex-group input { flex: 1; }
+        }
     </style>
 </head>
 <body>
@@ -60,7 +68,7 @@
                 "通勤时", "到办公室", "打开电脑", "会议结束后", 
                 "午休前", "下班打卡", "上床"
             ],
-            // 习惯分类
+            // 习惯分类（中文）
             categories: {
                 健康: [
                     "喝一杯温水", "做10个深蹲", "测量体重", 
@@ -75,7 +83,7 @@
                     "读专业文章10分钟", "背5个单词", 
                     "写学习笔记", "观看教学视频"
                 ],
-                 心态: [
+                心态: [
                     "冥想3分钟", "记录感恩日记", 
                     "深呼吸练习", "正念观察"
                 ],

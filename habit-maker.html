@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>习惯生成器</title>
+    <style>
+        body { 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            font-family: 'Microsoft YaHei'; 
+        }
+        .nav-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .nav-link {
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .nav-link:hover {
+            background: #e0e0e0;
+        }
+        .card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        .custom-input { margin-top: 10px; width: 100%; padding: 12px; font-size: 16px; box-sizing: border-box; }
+        .flex-group { display: flex; flex-direction: column; gap: 10px; }
+        select { width: 100%; padding: 12px; font-size: 16px; box-sizing: border-box; }
+        #output { font-size: 1.2em; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <!-- 公共导航栏 -->
+    <div class="nav-bar">
+        <a href="index.html" class="nav-link">主页</a>
+        <a href="habit-maker.html" class="nav-link">习惯生成器</a>
+        <a href="behavior-flow.html" class="nav-link">让行为容易做</a>
+    </div>
+
+    <!-- 习惯生成器内容 -->
+    <h1>习惯生成器</h1>
+    <div class="card">
+        <h3>在......之后</h3>
+        <div class="flex-group">
+            <select id="anchorAction"></select>
+            <input type="text" id="customAnchor" class="custom-input" placeholder="或输入自定义锚点">
+        </div>
+    </div>
+    <div class="card">
+        <h3>我会做......</h3>
+        <div class="flex-group">
+            <select id="habitCategory" onchange="loadHabits()"></select>
+            <select id="newHabit"></select>
+            <input type="text" id="customHabit" class="custom-input" placeholder="或输入自定义习惯">
+        </div>
+    </div>
+    <div class="card">
+        <h3>为了让大脑牢记这个习惯，我要立即：</h3>
+        <div class="flex-group">
+            <select id="celebrationAction"></select>
+            <input type="text" id="customCelebration" class="custom-input" placeholder="或输入自定义庆祝动作">
+        </div>
+    </div>
+    <button onclick="generateFormula()">生成习惯配方</button>
+    <div class="card" id="output">
+        <h3>你的专属习惯配方：</h3>
+        <p id="habitFormula"></p>
+    </div>
+
+    <script>
+        // 习惯生成器逻辑
+        const habitData = {
+            健康: ["喝一杯温水", "做10个深蹲", "测量体重", "补充维生素"],
+            效率: ["列出今日三件事", "整理工作台", "设置25分钟番茄钟", "清理邮箱"],
+            学习: ["读专业文章10分钟", "背5个单词", "写学习笔记", "观看教学视频"],
+            心态: ["冥想3分钟", "记录感恩日记", "深呼吸练习", "正念观察"],
+            家庭: ["给家人发问候", "规划家庭活动", "准备小礼物", "视频通话"]
+        };
+
+        // 100 个庆祝动作
+        const celebrationActions = [
+            "挥舞拳头，肯定地说：“Yes！”",
+            "轻轻敲击墙面或桌面，奏出轻快的节拍",
+            "想象妈妈给了你一个大大的拥抱",
+            "微微点头",
+            "假装投进三分球",
+            "想象烟花为你而绽放",
+            "展露一个大大的微笑",
+            "双手比赞",
+            "画一个笑脸，感受它传递的情绪",
+            "哼几句轻快的歌词",
+            "想想你最喜欢的老师对你说：“你做得很好！”",
+            "举起双手，摆出胜利的姿势，同时说：“胜利！”",
+            "想想你最好的朋友为你感到高兴",
+            "稍微按摩一下肩膀或脖子",
+            "心想：没错，我快要成功地做出改变了！",
+            "想象自己打开了一份包装漂亮的感谢礼物",
+            "说：“我说到做到了！”",
+            "跳几下甩手舞",
+            "撒出想象中五彩缤纷的小纸片",
+            "说：“我搞定了！”",
+            "握紧拳头，说：“Yes！”",
+            "对着镜子里的自己微笑",
+            "挥舞拳头，说：“太棒了！”",
+            "听到人群欢呼",
+            "对自己说：“干得好！”",
+            "双手合十，表示感谢",
+            "说：“搞定了！”然后打个响指",
+            "双手自然垂下，挺起胸膛",
+            "对自己说：“没错！我很擅长培养习惯。”",
+            "骄傲和雀跃地在房间里昂首阔步",
+            "说或想：“干得好！”",
+            "握拳，敲打心脏位置3次",
+            "想象一位老师为你颁奖",
+            "想象你的孩子在冲着你笑",
+            "以不同方式挥舞拳头",
+            "跳一段庆祝舞",
+            "在心里告诉自己：“是的，我能行！”",
+            "想象巧克力的味道",
+            "看亮黄色的事物",
+            "高兴地搓搓手",
+            "想象父亲对你说：“哇！你太优秀了！”",
+            "双手握拳，碰到一起后像炸开一样",
+            "给自己击掌",
+            "听听脑海里的号角声",
+            "模仿玛莎·斯图尔特的语气说：“这很不错。”",
+            "打响指",
+            "想象自己收到了新工作的聘用通知",
+            "说：“你做到了！”",
+            "扬起下巴，对着远方微笑",
+            "想象掌声雷动",
+            "说：“真好！”然后点点头",
+            "休息一下，深呼吸，感恩你的成功",
+            "举起双手，高呼：“耶！耶！耶！”",
+            "反复竖起大拇指",
+            "说：“我超喜欢它！”",
+            "高唱：“Celebrate good times, come on！”",
+            "赞美自己：“我很擅长……”",
+            "用口哨吹出轻快的旋律",
+            "吐一口气，然后说：“Yes！”",
+            "骄傲地拍拍肩膀",
+            "为自己鼓掌",
+            "想象你爱的人给了你一个大大的拥抱",
+            "拉长尾音，说：“Yes——！”",
+            "心想：“做得好！”",
+            "摆出一个充满能量的姿势",
+            "想象看到爱人时自己的表情",
+            "上下挥舞双手",
+            "摆出大力水手的姿势",
+            "深吸一口气，想象自己吸收了能量",
+            "做几秒“骚灵手指”",
+            "说：“达阵！”然后像裁判一样举起双手",
+            "嗅一嗅鲜花的芳香（但前提是你附近有鲜花）",
+            "想象自己正在最喜欢的海滩上",
+            "优雅地鞠躬",
+            "和你的孩子击掌",
+            "想象老虎机中头奖时发出的声音",
+            "看着镜子里的自己说：“我真为你骄傲！”",
+            "拍拍胸脯",
+            "边走边唱：“S-U-C-C-E-S-S！这就是我拼写‘成功’的方式。”",
+            "唱：“Hey now, you’re a rock star.”",
+            "想想你和宠物狗一起玩耍时的美好感觉",
+            "摆出尤塞恩·博尔特赢得短跑冠军后做出的姿势",
+            "与自己击掌",
+            "想象内心的微笑",
+            "摆一个功夫小子的招牌姿势",
+            "露出灿烂的笑容，并欢呼：“耶！耶！”",
+            "拍拍自己的背",
+            "打几下响指",
+            "张开双臂，想象自己正在拥抱改变",
+            "小声说：“感恩。”",
+            "像电影明星一样，抛出一个飞吻",
+            "让身体旋转一圈",
+            "说：“好极了！”",
+            "想象你有一条尾巴，欢快地摇来摇去",
+            "做出一个和平的手势，说（或想）：“胜利了！”",
+            "抱拳鞠躬",
+            "和镜子里的自己击掌",
+            "想象自己身上有一圈闪闪发光的光环",
+            "大声笑",
+            "模仿动画《摩登原始人》里的经典台词：“Yabba dabba doo！”"
+        ];
+
+        // 初始化锚点行为
+        function initAnchors() {
+            const anchors = ["起床", "刷牙", "洗脸", "上卫生间", "吃早餐", "通勤时", "到办公室", "打开电脑", "会议结束后", "午休前", "下班打卡", "上床"];
+            const anchorSelect = document.getElementById("anchorAction");
+            anchors.forEach(anchor => {
+                const option = new Option(anchor, anchor);
+                anchorSelect.add(option);
+            });
+        }
+
+        // 初始化分类
+        function initCategories() {
+            const categorySelect = document.getElementById("habitCategory");
+            Object.keys(habitData).forEach(category => {
+                const option = new Option(category, category);
+                categorySelect.add(option);
+            });
+        }
+
+        // 初始化庆祝动作
+        function initCelebrations() {
+            const celebrationSelect = document.getElementById("celebrationAction");
+            celebrationActions.forEach((action, index) => {
+                const option = new Option(`${index + 1}. ${action}`, action);
+                celebrationSelect.add(option);
+            });
+        }
+
+        // 加载习惯
+        function loadHabits() {
+            const category = document.getElementById("habitCategory").value;
+            const select = document.getElementById("newHabit");
+            select.innerHTML = "";
+            habitData[category].forEach(habit => {
+                const option = new Option(habit, habit);
+                select.add(option);
+            });
+        }
+
+        // 生成配方
+        function generateFormula() {
+            const anchor = document.getElementById("customAnchor").value.trim() || 
+                         document.getElementById("anchorAction").value;
+            const habit = document.getElementById("customHabit").value.trim() || 
+                         document.getElementById("newHabit").value;
+            const celebration = document.getElementById("customCelebration").value.trim() || 
+                              document.getElementById("celebrationAction").value;
+
+            const formula = `
+                在【${anchor}】之后，我会【${habit}】。
+                为了让大脑牢记这个习惯，我要立即：${celebration}
+            `;
+            document.getElementById("habitFormula").textContent = formula;
+
+            // 保存记录
+            const history = JSON.parse(localStorage.getItem("habitHistory")) || [];
+            history.push({
+                timestamp: new Date().toISOString(),
+                formula: formula,
+                components: { anchor, habit, celebration }
+            });
+            localStorage.setItem("habitHistory", JSON.stringify(history));
+        }
+
+        // 初始化
+        window.onload = function() {
+            initAnchors();
+            initCategories();
+            initCelebrations();
+            loadHabits();
+        };
+    </script>
+</body>
+</html>

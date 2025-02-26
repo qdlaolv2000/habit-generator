@@ -32,9 +32,16 @@
         .home-container {
             text-align: center;
         }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            word-wrap: break-word; /* 防止标题过长导致串行 */
+        }
         .main-btn {
             display: block;
-            width: 300px;
+            width: 100%;
+            max-width: 300px;
             margin: 20px auto;
             padding: 15px 30px;
             font-size: 18px;
@@ -44,6 +51,18 @@
             border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px; /* 在手机上缩小标题字体 */
+            }
+            .nav-bar {
+                flex-direction: column; /* 手机端导航栏垂直排列 */
+                gap: 10px;
+            }
+            .nav-link {
+                text-align: center;
+            }
         }
     </style>
 </head>
